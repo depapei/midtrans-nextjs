@@ -1,7 +1,10 @@
+"use client";
+
 import React, { useState } from "react";
-import { CheckoutPayload, initialPayload, Product } from "@/type/product";
-import { ArrowLeft, ShoppingCart, Star, Minus, Plus } from "lucide-react";
+import { CheckoutPayload, initialPayload, Product } from "@/type/product"; // Sesuaikan path import
+import { ArrowLeft, ShoppingCart, Star, Minus, Plus, X } from "lucide-react"; // Tambahkan icon X untuk tutup modal
 import { useCheckout } from "@/lib/httpCall/useCheckout";
+import { CustomerData } from "@/type/customer";
 
 interface ProductDetailProps {
   product: Product;
@@ -12,12 +15,33 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   product,
   onBack,
 }) => {
-  // State untuk quantity, default 1
-  const [quantity, setQuantity] = useState<number>(1);
+  // State untuk payload
   const [payload, setPayload] = useState<CheckoutPayload>(initialPayload);
 
-  // Batas maksimal stok (default 100 jika tidak ada data dari backend)
-  const maxStock = product.stock || 100;
+  // State untuk Quantity
+  const [quantity, setQuantity] = useState<number>(1);
+
+  // State untuk Modal dan Formulir
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [customer, setCustomer] = useState<CustomerData>({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+  });
+
+  const handleIncrement = () => setQuantity((prev) => prev + 1);
+  const handleDecrement = () =>
+    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+
+  // Handler untuk input form
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCustomer((prev: CustomerData) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -31,45 +55,28 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
     ((product.price - product.discountPrice) / product.price) * 100,
   );
 
-  // Logika Increment
-  const handleIncrement = () => {
-    if (quantity < maxStock) {
-      setQuantity((prev) => prev + 1);
-    }
-  };
-
-  // Logika Decrement
-  const handleDecrement = () => {
-    if (quantity > 1) {
-      setQuantity((prev) => prev - 1);
-    }
-  };
-
-  // Logika Input Manual (TextField)
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value, 10);
-
-    // Validasi: Hanya angka, minimal 1, maksimal stock
-    if (!isNaN(value)) {
-      if (value < 1) setQuantity(1);
-      else if (value > maxStock) setQuantity(maxStock);
-      else {
-        setQuantity(value);
-        setPayload((prev) => ({ ...prev, quantity: value }));
-      }
-    } else {
-      // Jika input kosong atau bukan angka, reset ke 1
-      setQuantity(1);
-    }
-  };
-
+  // Fungsi saat form di-submit di dalam modal
   const { isPending, mutate } = useCheckout(payload);
-  const handleCheckout = () => {
+  const handleConfirmCheckout = (e: React.FormEvent) => {
+    e.preventDefault(); // Mencegah reload halaman
+
+    const newPayload: CheckoutPayload = {
+      product: product,
+      quantity: quantity,
+      totalPrice: product.discountPrice * quantity,
+      customer: customer, // Masukkan data formulir ke payload
+    };
+
+    setPayload(newPayload);
+
+    console.log(payload);
     mutate();
+    // onCheckout(payload);
+    // setIsModalOpen(false); // Tutup modal setelah submit
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 relative">
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
         {/* Header Navigasi */}
         <div className="p-4 border-b border-gray-100 flex items-center">
@@ -83,7 +90,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
-          {/* Gambar Produk */}
+          {/* Bagian Gambar Produk */}
           <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
             <img
               src={product.imageUrl}
@@ -98,20 +105,24 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             )}
           </div>
 
-          {/* Detail Produk */}
+          {/* Bagian Detail Produk */}
           <div className="flex flex-col justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
                 {product.name}
               </h1>
 
-              {/* Review */}
+              {/* Review Stars */}
               <div className="flex items-center mb-4">
                 <div className="flex text-yellow-400">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-4 h-4 ${i < Math.floor(product.rating) ? "fill-current" : "text-gray-300"}`}
+                      className={`w-4 h-4 ${
+                        i < Math.floor(product.rating)
+                          ? "fill-current"
+                          : "text-gray-300"
+                      }`}
                     />
                   ))}
                 </div>
@@ -125,7 +136,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               </p>
             </div>
 
-            {/* Harga & Aksi */}
+            {/* Bagian Harga & Counter */}
             <div className="border-t border-gray-100 pt-6">
               <div className="flex items-end gap-3 mb-6">
                 <span className="text-3xl font-bold text-gray-900">
@@ -139,49 +150,44 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               </div>
 
               {/* Quantity Counter */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Jumlah Barang
-                </label>
-                <div className="flex items-center border border-gray-300 rounded-lg w-fit">
+              <div className="flex items-center justify-between mb-6 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                <span className="text-sm font-medium text-gray-700">
+                  Kuantitas:
+                </span>
+                <div className="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm">
                   <button
                     onClick={handleDecrement}
                     disabled={quantity <= 1}
-                    className="p-3 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    aria-label="Kurangi jumlah"
+                    className="p-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
-
-                  <input
-                    type="text"
-                    value={quantity}
-                    onChange={handleInputChange}
-                    className="w-16 text-center border-none focus:ring-0 text-gray-900 font-semibold p-0"
-                    aria-label="Input jumlah"
-                  />
-
+                  <span className="w-12 text-center font-medium text-gray-900 border-x border-gray-300 py-1">
+                    {quantity}
+                  </span>
                   <button
                     onClick={handleIncrement}
-                    disabled={quantity >= maxStock}
-                    className="p-3 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    aria-label="Tambah jumlah"
+                    className="p-2 text-gray-600 hover:bg-gray-100 transition-colors"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Tersedia: {maxStock} unit
-                </p>
               </div>
 
-              {/* Tombol Checkout */}
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-gray-500 text-sm">Total Harga:</span>
+                <span className="text-lg font-bold text-blue-600">
+                  {formatCurrency(product.discountPrice * quantity)}
+                </span>
+              </div>
+
+              {/* Tombol yang sekarang hanya memunculkan Modal */}
               <button
-                onClick={handleCheckout}
-                className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors focus:ring-4 focus:ring-blue-200 ${isPending && "animate-pulse"}`}
+                onClick={() => setIsModalOpen(true)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors focus:ring-4 focus:ring-blue-200"
               >
                 <ShoppingCart className="w-5 h-5" />
-                Checkout ({quantity} Item)
+                Lanjut ke Pembayaran
               </button>
 
               <p className="text-xs text-gray-500 mt-3 text-center">
@@ -191,6 +197,115 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           </div>
         </div>
       </div>
+
+      {/* ================= MODAL FORMULIR PEMESANAN ================= */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+          <div className="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden relative">
+            {/* Header Modal */}
+            <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+              <h3 className="text-lg font-bold text-gray-900">
+                Detail Pemesan
+              </h3>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Body / Formulir Modal */}
+            <form onSubmit={handleConfirmCheckout} className="p-6">
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nama Depan
+                  </label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    required
+                    value={customer.firstName}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow text-sm"
+                    placeholder="Budi"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nama Belakang
+                  </label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    required
+                    value={customer.lastName}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow text-sm"
+                    placeholder="Santoso"
+                  />
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nomor HP
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  required
+                  value={customer.phone}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow text-sm"
+                  placeholder="081234567890"
+                />
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Alamat Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  value={customer.email}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow text-sm"
+                  placeholder="budi@example.com"
+                />
+              </div>
+
+              {/* Rangkuman Singkat di dalam Modal */}
+              <div className="bg-blue-50 p-3 rounded-lg mb-6 text-sm text-blue-800 flex justify-between items-center">
+                <span>Total dibayar ({quantity} item)</span>
+                <span className="font-bold">
+                  {formatCurrency(product.discountPrice * quantity)}
+                </span>
+              </div>
+
+              {/* Aksi Modal */}
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="w-1/3 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className={`w-2/3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex justify-center items-center gap-2 ${isPending && "animate-pulse"}`}
+                >
+                  {isPending ? "Menunggu ..." : "Konfirmasi Pesanan"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

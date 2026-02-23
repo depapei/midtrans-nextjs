@@ -32,7 +32,7 @@ export const useDummyProduct: Product[] = [
     price: 1000000,
     discountPrice: 10000,
     imageUrl:
-      "hhttps://media.licdn.com/dms/image/v2/D5603AQGGrdSJXbWg3w/profile-displayphoto-shrink_200_200/B56ZsnbQVIJ4Ac-/0/1765893016287?e=1773273600&v=beta&t=rL9fFsawMHf9gDxxxhSZjVdT08wsve4CwTCrxI2vNcQ",
+      "https://media.licdn.com/dms/image/v2/D5603AQGGrdSJXbWg3w/profile-displayphoto-shrink_200_200/B56ZsnbQVIJ4Ac-/0/1765893016287?e=1773273600&v=beta&t=rL9fFsawMHf9gDxxxhSZjVdT08wsve4CwTCrxI2vNcQ",
     rating: 5,
     reviewCount: 69,
     stock: 1,

@@ -233,7 +233,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-400 hover:text-gray-600 transition-colors hover:cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>

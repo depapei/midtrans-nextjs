@@ -30,7 +30,9 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
     email: "",
   });
 
-  const handleIncrement = () => setQuantity((prev) => prev + 1);
+  const maxStock = product.stock;
+  const handleIncrement = () =>
+    setQuantity((prev) => (prev < maxStock ? prev + 1 : prev));
   const handleDecrement = () =>
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
@@ -184,7 +186,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
 
               <div className="flex justify-between items-center mb-4">
                 <span className="text-gray-500 text-sm">Total Harga:</span>
-                <span className="text-lg font-bold text-blue-600">
+                <span className="text-lg font-bold text-gray-700">
                   {formatCurrency(product.discountPrice * quantity)}
                 </span>
               </div>
@@ -192,7 +194,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               {/* Tombol yang sekarang hanya memunculkan Modal */}
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors focus:ring-4 focus:ring-blue-200"
+                className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors focus:ring-4 focus:ring-blue-200 hover:cursor-pointer"
               >
                 <ShoppingCart className="w-5 h-5" />
                 Lanjut ke Pembayaran
@@ -287,7 +289,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               </div>
 
               {/* Rangkuman Singkat di dalam Modal */}
-              <div className="bg-blue-50 p-3 rounded-lg mb-6 text-sm text-blue-800 flex justify-between items-center">
+              <div className="bg-blue-50 p-3 rounded-lg mb-6 text-sm text-gray-700 flex justify-between items-center">
                 <span>Total dibayar ({quantity} item)</span>
                 <span className="font-bold">
                   {formatCurrency(product.discountPrice * quantity)}
@@ -299,13 +301,13 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="w-1/3 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="w-1/3 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium hover:cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className={`w-2/3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex justify-center items-center gap-2 ${isPending && "animate-pulse"}`}
+                  className={`w-2/3 px-4 py-2 bg-black hover:bg-gray-800 text-white rounded-lg transition-colors font-medium flex justify-center items-center gap-2 hover:cursor-pointer ${isPending && "animate-pulse"}`}
                 >
                   {isPending ? "Menunggu ..." : "Konfirmasi Pesanan"}
                 </button>

@@ -1,4 +1,5 @@
 import { InternalServerError, Success } from "@/lib/helper/responses";
+import { generateRandomString } from "@/lib/helper/utils";
 import { IParams } from "@/type/checkout-token";
 import { CheckoutPayload } from "@/type/product";
 import Midtrans from "midtrans-client";
@@ -31,7 +32,7 @@ export const POST = async (req: NextRequest) => {
     },
     transaction_details: {
       gross_amount: totalPrice,
-      order_id: product.id + "-" + customer.phone,
+      order_id: `${product.id}-${customer.phone}-${generateRandomString(5)}`,
     },
   };
 

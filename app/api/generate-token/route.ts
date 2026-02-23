@@ -1,4 +1,4 @@
-import { Success } from "@/lib/helper/responses";
+import { InternalServerError, Success } from "@/lib/helper/responses";
 import { IParams } from "@/type/checkout-token";
 import { CheckoutPayload } from "@/type/product";
 import { NextRequest, NextResponse } from "next/server";
@@ -37,7 +37,10 @@ export const POST = async (req: NextRequest) => {
     },
   };
 
-  const token = await snap.createTransaction(parameter);
-
-  return Success(token);
+  try {
+    const token = await snap.createTransaction(parameter);
+    return Success(token);
+  } catch (error) {
+    return InternalServerError("Terdapat Kesalahan Error");
+  }
 };

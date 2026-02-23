@@ -78,24 +78,24 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   // if berhasil
   useEffect(() => {
     if (isSuccess) {
-      window.snap.pay(data.token);
+      (window as any).snap.pay(data.token);
       setIsModalOpen(false);
     }
   }, [isSuccess]);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 relative">
+    <div className="bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 relative">
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
         {/* Header Navigasi */}
-        <div className="p-4 border-b border-gray-100 flex items-center">
+        {/* <div className="p-4 border-b border-gray-100 flex items-center">
           <button
             onClick={onBack}
-            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+            className="hover:cursor-pointer flex items-center text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             <span className="text-sm font-medium">Kembali</span>
           </button>
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
           {/* Bagian Gambar Produk */}

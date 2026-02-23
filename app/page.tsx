@@ -1,6 +1,8 @@
 "use client";
 import { ProductDetail } from "@/components/pages/product/detail";
+import { useDummyProduct } from "@/lib/httpCall/useProduct";
 import { Provider } from "@/lib/Provider";
+import { Product } from "@/type/product";
 import { useEffect } from "react";
 
 export default function Home() {
@@ -19,23 +21,15 @@ export default function Home() {
     };
   }, []);
 
-  const data = {
-    id: "prd-001",
-    name: "Sampoerna Mild",
-    description: "Rokok Mild filter",
-    price: 40000,
-    discountPrice: 36000,
-    imageUrl:
-      "https://order.lottemart.co.id/_next/image?url=https%3A%2F%2Fcoreimages.lottemart.co.id%2Ford%2F06%2F1089165000-a&w=1920&q=75",
-    rating: 5,
-    reviewCount: 123890,
-    stock: 1520,
-  };
+  const data = useDummyProduct;
 
   return (
     <>
       <Provider>
-        <ProductDetail onBack={() => {}} product={data} />
+        {data.length >= 1 &&
+          data.map((product, idx: React.Key) => (
+            <ProductDetail onBack={() => {}} product={product} key={idx} />
+          ))}
       </Provider>
     </>
   );

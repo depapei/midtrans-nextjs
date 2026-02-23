@@ -4,7 +4,7 @@ import { CheckoutPayload } from "@/type/product";
 
 const hitCheckout = async (payload: any) => {
   const { data } = await API.post("/api/generate-token", payload);
-  return data;
+  return data.data;
 };
 
 // hooks
@@ -15,8 +15,6 @@ export const useCheckout = (payload: CheckoutPayload) => {
     },
     onSuccess: (res) => {
       return res;
-      // set window
-      // window.pay.apa??
     },
     onError: (err) => {
       alert(err);

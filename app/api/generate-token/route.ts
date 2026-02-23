@@ -14,13 +14,15 @@ export const POST = async (req: NextRequest) => {
   const body: CheckoutPayload = await req.json();
   const { product, quantity, totalPrice, customer } = body;
 
+  console.log(totalPrice, product.price * quantity);
+
   const parameter: IParams = {
     credit_card: {
       secure: false,
     },
     item_details: {
       name: product.name,
-      price: product.price,
+      price: product.discountPrice,
       quantity: quantity,
     },
     customer_details: {

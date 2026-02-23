@@ -1,9 +1,23 @@
 "use client";
 import { ProductDetail } from "@/components/pages/product/detail";
 import { Provider } from "@/lib/Provider";
+import { useEffect } from "react";
 
 export default function Home() {
-  // set up
+  // set up midtrans
+  useEffect(() => {
+    const snapScript = "https://app.sandbox.midtrans.com/snap/snap.js";
+    const clientKey = process.env.NEXT_PUBLIC_CLIENT || "";
+    const script = document.createElement("script");
+    script.src = snapScript;
+    script.setAttribute("data-client-key", clientKey);
+
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   const data = {
     id: "prd-001",

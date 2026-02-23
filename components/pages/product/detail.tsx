@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CheckoutPayload, initialPayload, Product } from "@/type/product"; // Sesuaikan path import
 import { ArrowLeft, ShoppingCart, Star, Minus, Plus, X } from "lucide-react"; // Tambahkan icon X untuk tutup modal
 import { useCheckout } from "@/lib/httpCall/useCheckout";
@@ -56,7 +56,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   );
 
   // Fungsi saat form di-submit di dalam modal
-  const { isPending, mutate } = useCheckout(payload);
+  const { isPending, mutate, isSuccess, data } = useCheckout(payload);
+  const [token, setToken] = useState<string>();
   const handleConfirmCheckout = (e: React.FormEvent) => {
     e.preventDefault(); // Mencegah reload halaman
 
@@ -69,11 +70,18 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
 
     setPayload(newPayload);
 
-    console.log(payload);
     mutate();
     // onCheckout(payload);
     // setIsModalOpen(false); // Tutup modal setelah submit
   };
+
+  // if berhasil
+  useEffect(() => {
+    if (isSuccess) {
+      window.snap.pay(data.token);
+      setIsModalOpen(false);
+    }
+  }, [isSuccess]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 relative">

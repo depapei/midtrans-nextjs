@@ -1,4 +1,6 @@
 import { Product } from "@/type/product";
+import { API } from "../api/instance";
+import { useQuery } from "@tanstack/react-query";
 
 export const useDummyProduct: Product[] = [
   {
@@ -53,3 +55,18 @@ export const useDummyProduct: Product[] = [
     stock: 1,
   },
 ];
+
+const hitDetailProduct = async (id: string): Promise<Product> => {
+  const { data } = await API.get(`/api/product/${id}`);
+  const product: Product = data.data.product;
+  return product;
+};
+
+export const useDetailProduct = (id: string) => {
+  return useQuery({
+    queryFn: () => {
+      return hitDetailProduct(id);
+    },
+    queryKey: [`product-${id}`],
+  });
+};

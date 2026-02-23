@@ -1,8 +1,9 @@
 "use client";
-import { ProductDetail } from "@/components/pages/product/detail";
+import { ProductList } from "@/components/pages/product";
 import { useDummyProduct } from "@/lib/httpCall/useProduct";
 import { Provider } from "@/lib/Provider";
 import { Product } from "@/type/product";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Home() {
@@ -23,13 +24,22 @@ export default function Home() {
 
   const data = useDummyProduct;
 
+  const router = useRouter();
+  const handleProductClick = (e: Product) => {
+    router.push(`/product/${e.id}`);
+  };
+
   return (
     <>
       <Provider>
-        {data.length >= 1 &&
+        <ProductList
+          onProductClick={(e) => handleProductClick(e)}
+          products={data}
+        />
+        {/* {data.length >= 1 &&
           data.map((product, idx: React.Key) => (
             <ProductDetail onBack={() => {}} product={product} key={idx} />
-          ))}
+          ))} */}
       </Provider>
     </>
   );

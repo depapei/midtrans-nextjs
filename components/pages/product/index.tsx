@@ -101,7 +101,7 @@ export const ProductList: React.FC<ProductListProps> = ({
                 </div>
 
                 {/* Bagian Info Produk */}
-                <div className="p-5 flex flex-col flex-grow">
+                <div className="p-5 flex flex-col grow">
                   <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
                     {product.name}
                   </h3>

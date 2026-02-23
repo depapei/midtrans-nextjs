@@ -1,8 +1,8 @@
 import { InternalServerError, Success } from "@/lib/helper/responses";
 import { IParams } from "@/type/checkout-token";
 import { CheckoutPayload } from "@/type/product";
-import { NextRequest, NextResponse } from "next/server";
 import Midtrans from "midtrans-client";
+import { NextRequest } from "next/server";
 
 let snap = new Midtrans.Snap({
   isProduction: false,
@@ -35,10 +35,13 @@ export const POST = async (req: NextRequest) => {
     },
   };
 
+  // return Success(parameter);
+
   try {
     const token = await snap.createTransaction(parameter);
     return Success(token);
   } catch (error) {
+    console.log(error);
     return InternalServerError("Terdapat Kesalahan Error");
   }
 };
